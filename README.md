@@ -4,18 +4,17 @@ The functions use "sc.exe" to get and set the SDDL string. The function converts
 <br>
 <br>
 
+
+
+# Getting Started
+## Prerequisites
+These functions require remote connection to target machines<br>
+<br>
+
 **Syntax**
 ```
 Get-SvcAce -ComputerName <String> -ServiceName <String> -accessMask <Int> -sid <String>
 ```
-<br>
-
-# Getting Started
-
-## Prerequisites
-These functions require remote connection to target machines<br>
-<br>
-<br>
 
 **Example**
 ```
