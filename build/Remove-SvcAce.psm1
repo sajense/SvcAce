@@ -1,4 +1,4 @@
-function Remove-AccessControlEntry {
+function Remove-SvcAce {
 
         <#
     .SYNOPSIS
@@ -168,4 +168,4 @@ function Remove-AccessControlEntry {
         Write-Host "The Access Control Entry does not exist on the service ""$ServiceName"", no change was made.`r`n" -ForegroundColor Green
     }       
 }
-Export-ModuleMember -Function Remove-AccessControlEntry
+Export-ModuleMember -Function Remove-SvcAce
