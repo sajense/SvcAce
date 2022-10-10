@@ -45,7 +45,7 @@ function New-SvcAce {
     param (
         [Parameter(
             Position=0,
-            Mandatory=$true
+            Mandatory=$false
         )]
         [ValidateScript({
             if (Test-WSMan -ComputerName $_ -ErrorAction SilentlyContinue) {
@@ -56,7 +56,7 @@ function New-SvcAce {
                 throw "Can't connect to remote computer $_ .."
             }
         })]
-        [string]$ComputerName,
+        [string]$ComputerName=$ENV:COMPUTERNAME,
         [Parameter(
             Position=1,
             Mandatory=$true
