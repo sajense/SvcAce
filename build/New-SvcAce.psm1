@@ -48,12 +48,18 @@ function New-SvcAce {
             Mandatory=$false
         )]
         [ValidateScript({
-            if (Test-WSMan -ComputerName $_ -ErrorAction SilentlyContinue) {
-                $true
+            if (!($ENV:COMPUTERNAME)) {
+                if (Test-WSMan -ComputerName $_ -ErrorAction SilentlyContinue) {
+                    $true
+                }
+                else {
+                    $false
+                    throw "Can't connect to remote computer $_ .."
+                }
+    
             }
             else {
-                $false
-                throw "Can't connect to remote computer $_ .."
+                $true
             }
         })]
         [string]$ComputerName=$ENV:COMPUTERNAME,
@@ -62,12 +68,23 @@ function New-SvcAce {
             Mandatory=$true
         )]
         [ValidateScript({
-            if (($_ -eq (Invoke-Command -ComputerName $ComputerName -ScriptBlock{Get-Service -Name $using:_ -ErrorAction SilentlyContinue})) -or ($_ -eq "scmanager")){
-                $true
+            if ($ComputerName -ne $ENV:COMPUTERNAME) {
+                if (($_ -eq (Invoke-Command -ComputerName $ComputerName -ScriptBlock{Get-Service -Name $using:_ -ErrorAction SilentlyContinue})) -or ($_ -eq "scmanager")){
+                    $true
+                }
+                else {
+                    $false
+                    throw "$_ is not a valid service name. Try using the ""Get-Service"" cmdlet to get the correct shortname of the service."
+                }
             }
-            else {
-                $false
-                throw "$_ is not a valid service name. Try using the ""Get-Service"" cmdlet to get the correct shortname of the service."
+            if ($ComputerName -eq $ENV:ComputerName) {
+                if (($_ -eq (Get-Service -Name $_ -ErrorAction SilentlyContinue).Name) -or ($_ -eq "scmanager")) {
+                    $true
+                }
+                else {
+                    $false
+                    throw "$_ is not a valid service name. Try using the ""Get-Service"" cmdlet to get the correct shortname of the service."
+                }
             }
         })]
         [string]$ServiceName,
@@ -112,10 +129,23 @@ function New-SvcAce {
         [int]$accessMask = 0x2001D
     }
 
-    if ($ServiceName -ne "scmanager") {
+    if (($ServiceName -ne "scmanager") -and ($ComputerName -ne $ENV:COMPUTERNAME)) {
         Write-Verbose "Checking if SID is present on service control manager .."
         try {
             $sc_sddl = Invoke-Command -ScriptBlock {sc.exe sdshow scmanager | Where-Object {$_}} -ComputerName $ComputerName -ErrorAction SilentlyContinue
+            $sc_rawSD = New-Object System.Security.AccessControl.RawSecurityDescriptor($sc_sddl) -ErrorAction SilentlyContinue
+            if ($sc_rawSD.DiscretionaryAcl.SecurityIdentifier.Value -notcontains $sid) {
+                Write-Warning "The defined SID is not present on the service control manager (scmanager). LogicMonitor will not be able to monitor any services without access to scmanager .."
+            }
+        }
+        catch {
+            continue;
+        }
+    }
+    if (($ServiceName -ne "scmanager") -and ($ComputerName -eq $ENV:COMPUTERNAME)) {
+        Write-Verbose "Checking if SID is present on service control manager .."
+        try {
+            $sc_sddl = sc.exe sdshow scmanager | Where-Object {$_} -ErrorAction SilentlyContinue
             $sc_rawSD = New-Object System.Security.AccessControl.RawSecurityDescriptor($sc_sddl) -ErrorAction SilentlyContinue
             if ($sc_rawSD.DiscretionaryAcl.SecurityIdentifier.Value -notcontains $sid) {
                 Write-Warning "The defined SID is not present on the service control manager (scmanager). LogicMonitor will not be able to monitor any services without access to scmanager .."
@@ -130,12 +160,23 @@ function New-SvcAce {
     $sid = New-Object System.Security.Principal.SecurityIdentifier($sid)
 
     Write-Verbose "Fetching SDDL string for the service $ServiceName .."
-    try {
-        $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $ComputerName
+    if ($ComputerName -ne $ENV:COMPUTERNAME) {
+        try {
+            $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $ComputerName
+        }
+        catch {
+            Write-Error "Can't fetch SDDL string for the service $ServiceName .."
+            break;
+        }
     }
-    catch {
-        Write-Error "Can't fetch SDDL string for the service $ServiceName .."
-        break;
+    if ($ComputerName -eq $ENV:COMPUTERNAME) {
+        try {
+            $sddl = sc.exe sdshow $ServiceName | Where-Object {$_}
+        }
+        catch {
+            Write-Error "Can't fetch SDDL string for the service $ServiceName .."
+            break;
+        }
     }
 
     Write-Verbose "Converting SDDL string to raw security descriptor .."
@@ -156,12 +197,23 @@ function New-SvcAce {
         Write-Host "`r`nOld SDDL: `r`n$($sddl)`r`n`nNew SDDL:`r`n$($newSDDL)`r`n" -ForegroundColor White
 
         Write-Verbose "Commiting new SDDL string! .."
-        try {
-            Invoke-Command -ScriptBlock {sc.exe sdset $using:ServiceName $using:newSDDL} -ComputerName $ComputerName
+        if ($ComputerName -ne $ENV:COMPUTERNAME) {
+            try {
+                Invoke-Command -ScriptBlock {sc.exe sdset $using:ServiceName $using:newSDDL} -ComputerName $ComputerName
+            }
+            catch {
+                Write-Error "Something went wrong trying to set the new SDDL string on remote computer $ComputerName .. Manually check the remote computer using the 'sc.exe sdshow $Servicename'"
+                break;
+            }
         }
-        catch {
-            Write-Error "Something went wrong trying to set the new SDDL string on remote computer $ComputerName .. Manually check the remote computer using the 'sc.exe sdshow $Servicename'"
-            break;
+        if ($ComputerName -eq $ENV:COMPUTERNAME) {
+            try {
+                sc.exe sdset $ServiceName $newSDDL
+            }
+            catch {
+                Write-Error "Something went wrong trying to set the new SDDL string on remote computer $ComputerName .. Manually check the remote computer using the 'sc.exe sdshow $Servicename'"
+                break;
+            }
         }
     }
     else {
