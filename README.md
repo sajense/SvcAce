@@ -1,5 +1,6 @@
 # About
-The functions in this module, can be used to *get*, *add* or *remove* access control entries in access control lists for (windows) services.
+This module can be used to *get*, *add* or *remove* access control entries in access control lists for (windows) services.<br>
+The functions use "sc.exe" to get and set the SDDL string. The function converts the SDDL string using the **RawAcl Class** in the **System.Security.AccessControl** namespace to create Ace's which is then added or used to match an existing Ace and remove it, using the InsertAce/RemoveAce Methods, before converting it back into a SDDL string and setting in remotely on the targeted machine.
 <br>
 <br>
 
@@ -8,10 +9,13 @@ The functions in this module, can be used to *get*, *add* or *remove* access con
 Get-SvcAce -ComputerName <String> -ServiceName <String> -accessMask <Int> -sid <String>
 ```
 <br>
-<br>
 
 # Getting Started
 
+## Prerequisites
+These functions require remote connection to target machines<br>
+<br>
+<br>
 
 **Example**
 ```
