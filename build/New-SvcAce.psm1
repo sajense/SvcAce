@@ -2,7 +2,7 @@ function New-AccessControlEntry {
 
     <#
     .SYNOPSIS
-        Configures the security descriptor string of a specified service to add an 
+        Configure the security descriptor string of a specified service to add an 
         access control entry with the permissions specified.
     
     .DESCRIPTION
@@ -146,25 +146,7 @@ function New-AccessControlEntry {
 
     Write-Verbose "Checking if raw security descriptor already contains ACE .."
     if ($rawSD.DiscretionaryAcl.GetEnumerator() -notcontains $ace){
-        Write-Verbose "Checking if SID is already present with a different level of access and removing it .."
-        while ($rawSD.DiscretionaryAcl.SecurityIdentifier.Value -contains $sid) {
-            $i = 0
-            try {
-                foreach ($a in $rawSD.DiscretionaryAcl){
-                    if ($a.SecurityIdentifier.Value -eq $sid) {
-                        [int]$index = $i
-                        Write-Warning "An ACE for the SID ($sid) already exist. The script will automatically replace it .."
-                        $rawSD.DiscretionaryAcl.RemoveAce($index)
-                    }
-                    $i++
-                }
-            }
-            catch {
-                Write-Error "Something went wrong trying to remove existing ACE with defined SID with a different access level .. Stopping script, no changes was made .."
-                break;
-            }
-        }
-
+       
         Write-Verbose "Raw security descriptor does not contain ACE .. Adding ACE to raw security descriptor .."
         $rawSD.DiscretionaryAcl.InsertAce($rawSD.DiscretionaryAcl.Count,$ace)
 
