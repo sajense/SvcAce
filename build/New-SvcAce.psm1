@@ -1,8 +1,8 @@
-function New-AccessControlEntry {
+function New-SvcAce {
 
     <#
     .SYNOPSIS
-        Configure the security descriptor string of a specified service to add an 
+        Configures the security descriptor string of a specified service to add an 
         access control entry with the permissions specified.
     
     .DESCRIPTION
@@ -168,4 +168,4 @@ function New-AccessControlEntry {
         Write-Host "The Access Control Entry already exist on the service ""$ServiceName"", no change was made.`r`n" -ForegroundColor Green
     }
 }
-Export-ModuleMember -Function New-AccessControlEntry
+Export-ModuleMember -Function New-SvcAce
