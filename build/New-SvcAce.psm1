@@ -69,22 +69,24 @@ function New-SvcAce {
             Mandatory=$true
         )]
         [ValidateScript({
-            if ($ComputerName -ne $ENV:COMPUTERNAME) {
-                if (($_ -eq (Invoke-Command -ComputerName $ComputerName -ScriptBlock{Get-Service -Name $using:_ -ErrorAction SilentlyContinue})) -or ($_ -eq "scmanager")){
-                    $true
+            switch ($_) {
+                {$ComputerName -eq $ENV:COMPUTERNAME} {
+                    if (($_ -eq (Get-Service -Name $_ -ErrorAction SilentlyContinue).Name) -or ($_ -eq "scmanager")) {
+                        $true
+                    }
+                    else {
+                        $false
+                        throw "$_ is not a valid service name. Try using the ""Get-Service"" cmdlet to get the correct shortname of the service."
+                    }
                 }
-                else {
-                    $false
-                    throw "$_ is not a valid service name. Try using the ""Get-Service"" cmdlet to get the correct shortname of the service."
-                }
-            }
-            if ($ComputerName -eq $ENV:ComputerName) {
-                if (($_ -eq (Get-Service -Name $_ -ErrorAction SilentlyContinue).Name) -or ($_ -eq "scmanager")) {
-                    $true
-                }
-                else {
-                    $false
-                    throw "$_ is not a valid service name. Try using the ""Get-Service"" cmdlet to get the correct shortname of the service."
+                {$ComputerName -ne $ENV:COMPUTERNAME} {
+                    if (($_ -eq (Invoke-Command -ComputerName $ComputerName -ScriptBlock{Get-Service -Name $using:_ -ErrorAction SilentlyContinue})) -or ($_ -eq "scmanager")){
+                        $true
+                    }
+                    else {
+                        $false
+                        throw "$_ is not a valid service name. Try using the ""Get-Service"" cmdlet to get the correct shortname of the service."
+                    }
                 }
             }
         })]
@@ -94,12 +96,12 @@ function New-SvcAce {
             Mandatory=$false
         )]
         [ValidateScript({
-            $SDDL_Aliases = @(
+            $SidTokens = @(
             "DA","DG","DU","ED","DD","DC","BA","BG","BU","LA","LG","AO","BO","PO","SO","AU","PS","CO","CG","SY","PU","WD","RE","IU","NU","SU","RC",
             "WR","AN","SA","CA","RS","EA","PA","RU","LS","NS","RD","NO","MU","LU","IS","CY","OW","ER","RO","CD","AC","RA","ES","MS","UD","HA","CN",
             "AA","RM","LW","ME","MP","HI","SI"
             )
-            if ($SDDL_Aliases -contains $_) {
+            if ($SidTokens -contains $_) {
                 $false
                 throw "$_ is a sid-token. An abbreviated form of a well-known SID, and not allowed to be modified using this script .."
             }
@@ -114,7 +116,7 @@ function New-SvcAce {
             Mandatory=$false
         )]
         [ValidateNotNullOrEmpty()]
-        [int]$accessMask = 0x2009D
+        [int]$AccessMask = 0x2009D
     )
 
     Write-Verbose "Checking if session is running with administrative privileges .."
@@ -127,7 +129,7 @@ function New-SvcAce {
 
     if ($ServiceName -eq "scmanager") {
         Write-Warning "accessMask must be 0x2001D for $ServiceName .. Correcting the variable .."
-        [int]$accessMask = 0x2001D
+        [int]$AccessMask = 0x2001D
     }
 
     if (($ServiceName -ne "scmanager") -and ($ComputerName -ne $ENV:COMPUTERNAME)) {
@@ -184,7 +186,7 @@ function New-SvcAce {
     $rawSD = New-Object System.Security.AccessControl.RawSecurityDescriptor($sddl)
 
     Write-Verbose "Creating ACE based on SID and access mask .."
-    $ace = New-Object System.Security.AccessControl.CommonAce([System.Security.AccessControl.AceFlags]::None,[System.Security.AccessControl.AceQualifier]::AccessAllowed,$accessMask,$sid,$false,$null)
+    $ace = New-Object System.Security.AccessControl.CommonAce([System.Security.AccessControl.AceFlags]::None,[System.Security.AccessControl.AceQualifier]::AccessAllowed,$AccessMask,$sid,$false,$null)
 
     Write-Verbose "Checking if raw security descriptor already contains ACE .."
     if ($rawSD.DiscretionaryAcl.GetEnumerator() -notcontains $ace){
