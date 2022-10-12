@@ -70,8 +70,12 @@ function New-SvcAce {
         )]
         [ValidateScript({
             switch ($_) {
+                {$_ -eq 'scmanager'}{
+                    $true
+                    break
+                }
                 {$ComputerName -eq $ENV:COMPUTERNAME} {
-                    if (($_ -eq (Get-Service -Name $_ -ErrorAction SilentlyContinue).Name) -or ($_ -eq "scmanager")) {
+                    if ($_ -eq (Get-Service -Name $_ -ErrorAction SilentlyContinue).Name) {
                         $true
                     }
                     else {
@@ -80,7 +84,7 @@ function New-SvcAce {
                     }
                 }
                 {$ComputerName -ne $ENV:COMPUTERNAME} {
-                    if (($_ -eq (Invoke-Command -ComputerName $ComputerName -ScriptBlock{Get-Service -Name $using:_ -ErrorAction SilentlyContinue})) -or ($_ -eq "scmanager")){
+                    if ($_ -eq (Invoke-Command -ComputerName $ComputerName -ScriptBlock{Get-Service -Name $using:_ -ErrorAction SilentlyContinue})){
                         $true
                     }
                     else {
