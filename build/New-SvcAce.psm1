@@ -131,58 +131,35 @@ function New-SvcAce {
         break;
     }  
 
+    Write-Verbose "Setting SID variable .."
+    $sid = New-Object System.Security.Principal.SecurityIdentifier($sid)
+
     if ($ServiceName -eq "scmanager") {
         Write-Warning "accessMask must be 0x2001D for $ServiceName .. Correcting the variable .."
         [int]$AccessMask = 0x2001D
     }
 
-    if (($ServiceName -ne "scmanager") -and ($ComputerName -ne $ENV:COMPUTERNAME)) {
-        Write-Verbose "Checking if SID is present on service control manager .."
-        try {
-            $sc_sddl = Invoke-Command -ScriptBlock {sc.exe sdshow scmanager | Where-Object {$_}} -ComputerName $ComputerName -ErrorAction SilentlyContinue
-            $sc_rawSD = New-Object System.Security.AccessControl.RawSecurityDescriptor($sc_sddl) -ErrorAction SilentlyContinue
-            if ($sc_rawSD.DiscretionaryAcl.SecurityIdentifier.Value -notcontains $sid) {
-                Write-Warning "The defined SID is not present on the service control manager (scmanager). LogicMonitor will not be able to monitor any services without access to scmanager .."
-            }
-        }
-        catch {
-            continue;
-        }
-    }
-    if (($ServiceName -ne "scmanager") -and ($ComputerName -eq $ENV:COMPUTERNAME)) {
-        Write-Verbose "Checking if SID is present on service control manager .."
-        try {
-            $sc_sddl = sc.exe sdshow scmanager | Where-Object {$_} -ErrorAction SilentlyContinue
-            $sc_rawSD = New-Object System.Security.AccessControl.RawSecurityDescriptor($sc_sddl) -ErrorAction SilentlyContinue
-            if ($sc_rawSD.DiscretionaryAcl.SecurityIdentifier.Value -notcontains $sid) {
-                Write-Warning "The defined SID is not present on the service control manager (scmanager). LogicMonitor will not be able to monitor any services without access to scmanager .."
-            }
-        }
-        catch {
-            continue;
-        }
-    }
-
-    Write-Verbose "Setting SID variable .."
-    $sid = New-Object System.Security.Principal.SecurityIdentifier($sid)
-
     Write-Verbose "Fetching SDDL string for the service $ServiceName .."
-    if ($ComputerName -ne $ENV:COMPUTERNAME) {
-        try {
-            $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $ComputerName
+    switch ($ServiceName) {
+        {@($ComputerName -ne $ENV:COMPUTERNAME) -and ($_ -ne "scmanager")} {
+                $scmSDDL = Invoke-Command -ScriptBlock {sc.exe sdshow scmanager | Where-Object {$_}} -ComputerName $ComputerName -ErrorAction Stop
+                $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $ComputerName -ErrorAction Stop
         }
-        catch {
-            Write-Error "Can't fetch SDDL string for the service $ServiceName .."
-            break;
+        {@($ComputerName -eq $ENV:COMPUTERNAME) -and ($_ -ne "scmanager")} {
+                $scmSDDL = sc.exe sdshow scmanager | Where-Object {$_} -ErrorAction Stop
+                $sddl = sc.exe sdshow $ServiceName | Where-Object {$_} -ErrorAction Stop
+        }
+        {@($ComputerName -ne $ENV:COMPUTERNAME) -and ($_ -eq "scmanager")} {
+                $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $ServiceName | Where-Object {$_}} -ComputerName $ComputerName -ErrorAction Stop
+        }
+        {@($ComputerName -eq $ENV:COMPUTERNAME) -and ($_ -eq "scmanager")} {
+                $sddl = sc.exe sdshow $ServiceName | Where-Object {$_} -ErrorAction Stop
         }
     }
-    if ($ComputerName -eq $ENV:COMPUTERNAME) {
-        try {
-            $sddl = sc.exe sdshow $ServiceName | Where-Object {$_}
-        }
-        catch {
-            Write-Error "Can't fetch SDDL string for the service $ServiceName .."
-            break;
+    if (($null -ne $scmSDDL) -and (($scmSDDL | Out-String) -notlike "*OpenService FAILED*")) {
+        $sc_rawSD = New-Object System.Security.AccessControl.RawSecurityDescriptor($scmSDDL) -ErrorAction SilentlyContinue
+        if ($sc_rawSD.DiscretionaryAcl.SecurityIdentifier.Value -notcontains $sid) {
+            Write-Warning "The defined SID is not present on the service control manager (scmanager). LogicMonitor will not be able to monitor any services without access to scmanager .."
         }
     }
 
@@ -204,25 +181,14 @@ function New-SvcAce {
         Write-Host "`r`nOld SDDL: `r`n$($sddl)`r`n`nNew SDDL:`r`n$($newSDDL)`r`n" -ForegroundColor White
 
         Write-Verbose "Commiting new SDDL string! .."
-        if ($ComputerName -ne $ENV:COMPUTERNAME) {
-            try {
-                Invoke-Command -ScriptBlock {sc.exe sdset $using:ServiceName $using:newSDDL} -ComputerName $ComputerName
+        switch ($ComputerName) {
+            {$ComputerName -ne $ENV:COMPUTERNAME} {
+                Invoke-Command -ScriptBlock {sc.exe sdset $using:ServiceName $using:newSDDL} -ComputerName $ComputerName -ErrorAction Stop
             }
-            catch {
-                Write-Error "Something went wrong trying to set the new SDDL string on remote computer $ComputerName .. Manually check the remote computer using the 'sc.exe sdshow $Servicename'"
-                break;
+            {$ComputerName -eq $ENV:COMPUTERNAME} {
+                sc.exe sdset $ServiceName $newSDDL -ErrorAction Stop
             }
-        }
-        if ($ComputerName -eq $ENV:COMPUTERNAME) {
-            try {
-                sc.exe sdset $ServiceName $newSDDL
-            }
-            catch {
-                Write-Error "Something went wrong trying to set the new SDDL string on remote computer $ComputerName .. Manually check the remote computer using the 'sc.exe sdshow $Servicename'"
-                break;
-            }
-        }
-    }
+        }    }
     else {
         Write-Host "The Access Control Entry already exist on the service ""$ServiceName"", no change was made.`r`n" -ForegroundColor Green
     }
