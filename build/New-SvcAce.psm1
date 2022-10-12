@@ -147,7 +147,7 @@ function New-SvcAce {
                 $sddl = sc.exe sdshow $ServiceName | Where-Object {$_} -ErrorAction Stop
         }
         {@($ComputerName -ne $ENV:COMPUTERNAME) -and ($_ -eq "scmanager")} {
-                $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $ServiceName | Where-Object {$_}} -ComputerName $ComputerName -ErrorAction Stop
+                $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $ComputerName -ErrorAction Stop
         }
         {@($ComputerName -eq $ENV:COMPUTERNAME) -and ($_ -eq "scmanager")} {
                 $sddl = sc.exe sdshow $ServiceName | Where-Object {$_} -ErrorAction Stop
