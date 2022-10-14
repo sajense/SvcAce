@@ -125,8 +125,7 @@ function Remove-SvcAce {
     $id = [System.Security.Principal.WindowsIdentity]::GetCurrent()
     $Principal = New-Object System.Security.Principal.WindowsPrincipal($id)
     if (!($Principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator))){
-        Write-Error "Script is not running as Administrator. Stopping script, no changes were made .."
-        break;
+        Throw "Script is not running as Administrator. Stopping script, no changes were made .."
     }  
 
     ### Creating security identifier for sid
