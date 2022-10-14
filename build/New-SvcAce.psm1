@@ -21,7 +21,7 @@ function New-SvcAce {
         If no value is supplied, the default SID will be that of the group "Sec-T1-System-WMI-RO"
     
     .PARAMETER accessMask
-        Specifies the access mask in HEX that translates into the permissions that are granted in the ACE.
+        Specifies the access mask in HEX that translates into the permissions that is granted in the ACE.
         If no value is supplied, the default accessMask will be "0x2009D" which is HEX for the permissions "CCLCSWRPLORC",
         which is needed to poll services for monitoring data.
         If scmanager is defined as ServiceName, the accessmask will be corrected to "0x2001D" as that is what is supported for scmanager.

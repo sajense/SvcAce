@@ -1,13 +1,13 @@
 function Remove-SvcAce {
 
-        <#
+    <#
     .SYNOPSIS
         Configures the security descriptor string of a specified service to remove an 
         access control entry with the sid and permissions specified.
     
     .DESCRIPTION
         Remove-AccessControlEntry is a function that modifies the security descriptor string
-        on a defined service, by removing an ACE for a group or user, that has access as specified.
+        on a defined service, by removing an Ace for a group or user, that has access.
 
     .PARAMETER ComputerName
         Specifies the name of the remote server to execute this script on.
@@ -20,14 +20,11 @@ function Remove-SvcAce {
         If no value is supplied, the default SID will be that of the group "Sec-T1-System-WMI-RO"
     
     .PARAMETER accessMask
-        Specifies the access mask in HEX that translates into the permissions that are granted in the ACE.
+        Specifies the access mask in HEX that translates into the permissions that is granted in the ACE.
         If no value is supplied, the default accessMask will be "0x2009D" which is HEX for the permissions "CCLCSWRPLORC",
         which is needed for LogicMonitor to read services.
         If scmanager is defined as ServiceName, the accessMask will be corrected to "0x2001D" as that is what is supported for scmanager.
         See more information: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/f4296d69-1c0f-491f-9587-a960b292d070
-
-    .EXAMPLE
-        Remove-AccessControlEntry -ServiceName 'bits'
 
     .EXAMPLE
         Remove-AccessControlEntry -ComputerName 'gc-test-stjens' -ServiceName 'bits'
