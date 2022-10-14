@@ -3,10 +3,6 @@ This module can be used to *get*, *add* or *remove* access control entries in ac
 The functions use "sc.exe" to get and set the SDDL string. The function converts the SDDL string using the **RawAcl Class** in the **System.Security.AccessControl** namespace to create Ace's which is then added or used to match an existing Ace and remove it, using the InsertAce/RemoveAce Methods, before converting it back into a SDDL string and setting in remotely on the targeted machine.
 <br>
 
-# Getting Started
-
-## About
-
 This module contains 4 functions<br>
 ```
 Get-SvcAce
@@ -28,6 +24,8 @@ Remove-SvcAce
 This function, removes a access control entry on a service that contains the entered sid.
 ```
 <br>
+
+# Getting Started
 
 ## How to install
 Download the repo, and import the module using the "Import-Module" cmdlet.
