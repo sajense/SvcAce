@@ -34,8 +34,6 @@ Download the repo, and import the module using the "Import-Module" cmdlet.
 Import-Module .\build\SvcAce.psd1 -Force
 ```
 
-<br>
-
 ## How to use
 
 **Syntax**
