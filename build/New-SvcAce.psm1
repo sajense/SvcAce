@@ -186,7 +186,8 @@ function New-SvcAce {
             {$ComputerName -eq $ENV:COMPUTERNAME} {
                 sc.exe sdset $ServiceName $newSDDL -ErrorAction Stop
             }
-        }    }
+        }    
+    }
     else {
         Write-Host "The Access Control Entry already exist on the service ""$ServiceName"", no change was made.`r`n" -ForegroundColor Green
     }
