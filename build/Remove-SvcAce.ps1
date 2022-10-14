@@ -149,7 +149,7 @@ function Remove-SvcAce {
                 if (($a.SecurityIdentifier.Value -eq $sid) -and ($a.AccessMask -eq [uint32]$AccessMask)) {
                     [int]$index = $i
                     $RawSD.DiscretionaryAcl.RemoveAce($index)
-                    Write-Information -MessageData "An ACE for the SID ($sid) with the access mask $AccessMask has been removed" -InformationAction Continue
+                    Write-Output "`r`nAn ACE for the SID ($sid) with the access mask $AccessMask has been removed"
                 }
                 $i++
             }
@@ -169,15 +169,18 @@ function Remove-SvcAce {
         ### Setting SDDL
         switch ($ComputerName) {
             {$ComputerName -ne $ENV:COMPUTERNAME} {
+                Write-Output ""
                 Invoke-Command -ScriptBlock {sc.exe sdset $using:ServiceName $using:newSDDL} -ComputerName $ComputerName -ErrorAction Stop
+                Write-Output ""
             }
             {$ComputerName -eq $ENV:COMPUTERNAME} {
+                Write-Output ""
                 sc.exe sdset $ServiceName $newSDDL -ErrorAction Stop
+                Write-Output ""
             }
         }
     }
     else {
-        Write-Host "The Access Control Entry does not exist on the service ""$ServiceName"", no change was made.`r`n" -ForegroundColor Green
+        Write-Host "`r`nNo access control entry exist for those params, no change was made.`r`n" -ForegroundColor Green
     }       
 }
-Export-ModuleMember -Function Remove-SvcAce

@@ -4,23 +4,67 @@ The functions use "sc.exe" to get and set the SDDL string. The function converts
 
 # Getting Started
 
+## About
+
+This module contains 4 functions<br>
+```
+Get-SvcAce
+This function, gets access control entries on a service for a specified sid.
+```
+
+```
+Get-SvcSddl
+This function, gets access control entries on a service for a specified sid in SDDL form.
+```
+
+```
+New-SvcAce
+This function, sets a new access control entry on a service based on sid and accessmask.
+```
+
+```
+Remove-SvcAce
+This function, removes a access control entry on a service that contains the entered sid.
+```
+<br>
+
+## How to install
+
+
+<br>
+
+## How to use
+
 **Syntax**
 ```
-Get-SvcAce -ComputerName <String> -ServiceName <String> -accessMask <Int> -sid <String>
+New-SvcAce -ComputerName <String> -ServiceName <String> -sid <String> -accessMask <Int>
 ```
 
-**Example**
+**Example for New-SvcAce**
 ```
-New-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits' -accessMask 0x2009D -sid 'S-1-5-21-682003330-2146849767-505966439-17195'
-```
+New-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits' -sid 'S-1-5-21-682003330-2146849767-505966439-17195' -accessMask 0x2009D
 
-**Output**
-```
-Old SDDL:
-D:(A;CI;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWLOCRRC;;;IU)(A;;CCLCSWLOCRRC;;;SU)S:(AU;SAFA;WDWO;;;BA)
-
-New SDDL:
-D:(A;CI;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWLOCRRC;;;IU)(A;;CCLCSWLOCRRC;;;SU)(A;;CCLCSWRPLORC;;;S-1-5-21-682003330-2146849767-505966439-17195)S:(AU;SAFA;WDWO;;;BA)
 
 [SC] SetServiceObjectSecurity SUCCESS
 ```
+
+**Example for Get-SvcAce**
+```
+Get-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits' -sid 'S-1-5-21-682003330-2146849767-505966439-17195'
+
+
+BinaryLength       : 36
+AceQualifier       : AccessAllowed
+IsCallback         : False
+OpaqueLength       : 0
+AccessMask         : 131229
+SecurityIdentifier : S-1-5-21-682003330-2146849767-505966439-17195
+AceType            : AccessAllowed
+AceFlags           : None
+IsInherited        : False
+InheritanceFlags   : None
+PropagationFlags   : None
+AuditFlags         : None
+```
+<br>
+

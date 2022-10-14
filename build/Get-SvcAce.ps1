@@ -132,4 +132,3 @@ function Get-SvcAce {
         }
     }    
 }
-Export-ModuleMember -Function Get-SvcAce

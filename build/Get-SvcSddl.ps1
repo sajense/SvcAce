@@ -90,6 +90,5 @@ function Get-SvcSddl {
         }
     }
     ### Print output
-    $sddl
+    $sddl | Out-String | ConvertFrom-String -PropertyNames SDDL | Format-Table -Wrap
 }
-Export-ModuleMember -Function Get-SvcSddl
