@@ -174,9 +174,6 @@ function New-SvcAce {
         ### Converting RawSD to SDDL string
         $newSDDL = $RawSD.GetSddlForm([System.Security.AccessControl.AccessControlSections]::All)
 
-        ### ### Friendly output <- will be changed for a better feel ...
-        Write-Host "`r`nOld SDDL: `r`n$($sddl)`r`n`nNew SDDL:`r`n$($newSDDL)`r`n" -ForegroundColor White
-
         ### Setting SDDL
         switch ($ComputerName) {
             {$ComputerName -ne $ENV:COMPUTERNAME} {

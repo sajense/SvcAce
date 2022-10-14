@@ -166,8 +166,6 @@ function Remove-SvcAce {
             Throw "The SID has an Ace, but the entered accessmask does not match the entry. Stopping script, no change was made .."
         }
 
-        Write-Host "`r`nOld SDDL: `r`n$($sddl)`r`n`nNew SDDL:`r`n$($newSDDL)`r`n" -ForegroundColor White
-
         ### Setting SDDL
         switch ($ComputerName) {
             {$ComputerName -ne $ENV:COMPUTERNAME} {
