@@ -23,9 +23,10 @@ This function, sets a new access control entry on a service based on sid and acc
 Remove-SvcAce
 This function, removes a access control entry on a service that contains the entered sid.
 ```
-<br>
 
 # Getting Started
+Follow sections explains a bit about installation of the module and how to use it.<br>
+This section will be updated at a later time..
 
 ## How to install
 Download the repo, and import the module using the "Import-Module" cmdlet.
