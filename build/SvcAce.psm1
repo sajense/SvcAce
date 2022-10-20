@@ -81,11 +81,11 @@ function Get-SvcSddl {
     }  
 
     ### Getting SDDL and checking if sid has an Ace on scm as a friendly reminder
-    switch ($ServiceName) {
-        {@($ComputerName -ne $ENV:COMPUTERNAME)} {
-                $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $ComputerName -ErrorAction Stop
+    switch ($ComputerName) {
+        {@($_ -ne $ENV:COMPUTERNAME)} {
+                $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $_ -ErrorAction Stop
         }
-        {@($ComputerName -eq $ENV:COMPUTERNAME)} {
+        {@($_ -eq $ENV:COMPUTERNAME)} {
                 $sddl = sc.exe sdshow $ServiceName | Where-Object {$_} -ErrorAction Stop
         }
     }
@@ -205,11 +205,11 @@ function Get-SvcAce {
     $sid = New-Object System.Security.Principal.SecurityIdentifier($sid)
 
     ### Getting SDDL and checking if sid has an Ace on scm as a friendly reminder
-    switch ($ServiceName) {
-        {@($ComputerName -ne $ENV:COMPUTERNAME)} {
-                $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $ComputerName -ErrorAction Stop
+    switch ($ComputerName) {
+        {@($_ -ne $ENV:COMPUTERNAME)} {
+                $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $_ -ErrorAction Stop
         }
-        {@($ComputerName -eq $ENV:COMPUTERNAME)} {
+        {@($_ -eq $ENV:COMPUTERNAME)} {
                 $sddl = sc.exe sdshow $ServiceName | Where-Object {$_} -ErrorAction Stop
         }
     }
@@ -551,11 +551,11 @@ function Remove-SvcAce {
     $sid = New-Object System.Security.Principal.SecurityIdentifier($sid)
 
     ### Getting SDDL and checking if sid has an Ace on scm as a friendly reminder
-    switch ($ServiceName) {
-        {@($ComputerName -ne $ENV:COMPUTERNAME)} {
-                $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $ComputerName -ErrorAction Stop
+    switch ($ComputerName) {
+        {@($_ -ne $ENV:COMPUTERNAME)} {
+                $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $_ -ErrorAction Stop
         }
-        {@($ComputerName -eq $ENV:COMPUTERNAME)} {
+        {@($_ -eq $ENV:COMPUTERNAME)} {
                 $sddl = sc.exe sdshow $ServiceName | Where-Object {$_} -ErrorAction Stop
         }
     }
