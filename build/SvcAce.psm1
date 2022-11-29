@@ -5,7 +5,7 @@ function Get-SvcSddl {
         Gets the access control list of a service in SDDL form.
     
     .DESCRIPTION
-        Get-SvcSddl is a function ets the access control list of a service in SDDL form for a specific service on the machine targeted.
+        Get-SvcSddl is a function that gets the access control list SDDL form for a specific service on the machine targeted.
 
     .PARAMETER ComputerName
         Specifies the name of the machine to execute this script on.
@@ -14,7 +14,7 @@ function Get-SvcSddl {
         Specifies the shortname of the service.
 
     .EXAMPLE
-        Get-SvcSddl -ComputerName 'gc-test-stjens' -ServiceName 'bits'
+        Get-SvcSddl -ComputerName 'server1' -ServiceName 'service1'
     #>
 
     [CmdletBinding()]
@@ -112,10 +112,7 @@ function Get-SvcAce {
         Specifies the SID of an identity, eg. user or group that has an Ace on the service.
     
     .EXAMPLE
-        Get-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits'
-
-    .EXAMPLE
-        Get-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits' -sid 'S-1-5-21-682003330-2146849767-505966439-17195'
+        Get-SvcAce -ComputerName 'server1' -ServiceName 'service1' -sid 'S-1-5-18'
     #>
 
     [CmdletBinding()]
@@ -191,7 +188,7 @@ function Get-SvcAce {
             }
         })]
         [ValidateNotNullOrEmpty()]
-        [string]$sid = 'S-1-5-21-682003330-2146849767-505966439-17195'
+        [string]$sid = $ENV:SvcAceSID
     )
 
     ### Checking if code is running in elevated session
@@ -246,7 +243,6 @@ function New-SvcAce {
 
     .PARAMETER sid
         Specifies the SID of an identity, eg. user or group that the access will be granted to.
-        If no value is supplied, the default SID will be that of the group "Sec-T1-System-WMI-RO"
     
     .PARAMETER accessMask
         Specifies the access mask in HEX that translates into the permissions that is granted in the ACE.
@@ -256,13 +252,10 @@ function New-SvcAce {
         See more information for permissions: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/f4296d69-1c0f-491f-9587-a960b292d070
 
     .EXAMPLE
-        New-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits'
+        New-SvcAce -ComputerName 'server1' -ServiceName 'service1' -sid 'S-1-5-18'
 
     .EXAMPLE
-        New-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits' -sid 'S-1-5-21-682003330-2146849767-505966439-17195'
-
-    .EXAMPLE
-        New-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits' -sid 'S-1-5-21-682003330-2146849767-505966439-17195' -accessMask 0x2009D
+        New-SvcAce -ComputerName 'server1' -ServiceName 'service1' -sid 'S-1-5-18' -accessMask 0x2009D
     #>
 
     [CmdletBinding()]
@@ -338,7 +331,7 @@ function New-SvcAce {
             }
         })]
         [ValidateNotNullOrEmpty()]
-        [string]$sid = 'S-1-5-21-682003330-2146849767-505966439-17195',
+        [string]$sid = $ENV:SvcAceSID,
         [Parameter(
             Position=3,
             Mandatory=$false
@@ -439,23 +432,19 @@ function Remove-SvcAce {
 
     .PARAMETER sid
         Specifies the SID of an identity, eg. user or group that the access is granted for.
-        If no value is supplied, the default SID will be that of the group "Sec-T1-System-WMI-RO"
     
     .PARAMETER accessMask
         Specifies the access mask in HEX that translates into the permissions that is granted in the ACE.
         If no value is supplied, the default accessMask will be "0x2009D" which is HEX for the permissions "CCLCSWRPLORC",
-        which is needed for LogicMonitor to read services.
+        which is needed to poll services for monitoring data.
         If scmanager is defined as ServiceName, the accessMask will be corrected to "0x2001D" as that is what is supported for scmanager.
         See more information: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/f4296d69-1c0f-491f-9587-a960b292d070
 
     .EXAMPLE
-        Remove-AccessControlEntry -ComputerName 'gc-test-stjens' -ServiceName 'bits'
+        Remove-AccessControlEntry -ComputerName 'server1' -ServiceName 'service1' -sid 'S-1-5-18'
 
     .EXAMPLE
-        Remove-AccessControlEntry -ComputerName 'gc-test-stjens' -ServiceName 'bits' -sid 'S-1-5-21-682003330-2146849767-505966439-17195'
-
-    .EXAMPLE
-        Remove-AccessControlEntry -ComputerName 'gc-test-stjens' -ServiceName 'bits' -sid 'S-1-5-21-682003330-2146849767-505966439-17195' -accessMask 0x2009D
+        Remove-AccessControlEntry -ComputerName 'server1' -ServiceName 'service1' -sid 'S-1-5-18' -accessMask 0x2009D
     #>
 
     [CmdletBinding()]
@@ -531,7 +520,7 @@ function Remove-SvcAce {
             }
         })]
         [ValidateNotNullOrEmpty()]
-        [string]$sid = 'S-1-5-21-682003330-2146849767-505966439-17195',
+        [string]$sid = $ENV:SvcAceSID,
         [Parameter(
             Position=3,
             Mandatory=$false
