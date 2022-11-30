@@ -30,7 +30,7 @@ How to install and use the module<br>
 ## How to install
 This module has been uploaded to Powershell Gallery and can be installed using the following command
 ```powershell
-Install-Module SvcAce
+Install-Module -Name SvcAce
 ```
 
 ## How to use
