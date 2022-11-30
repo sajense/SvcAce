@@ -1,17 +1,17 @@
 # About
 This module can be used to *get*, *add* or *remove* access control entries in access control lists for (windows) services.<br>
-The functions use "sc.exe" to get and set the SDDL string. The function converts the SDDL string using the **RawAcl Class** in the **System.Security.AccessControl** namespace to create Ace's which is then added or used to match an existing Ace and remove it, using the InsertAce/RemoveAce Methods, before converting it back into a SDDL string and setting in remotely on the targeted machine.
+The functions use "sc.exe" to get and set the SDDL string. The function converts the SDDL string using the **RawAcl Class** in the **System.Security.AccessControl** namespace to create Ace's which is then added or used to match an existing Ace and remove it, using the InsertAce/RemoveAce Methods, before converting it back into a SDDL string and setting it locally or remotely on the targeted machine.
 <br>
 
 This module contains 4 functions<br>
 ```
-Get-SvcAce
-This function, gets access control entries on a service for a specified sid.
+Get-SvcSddl
+This function, gets access control entries on a service for a specified sid in SDDL form.
 ```
 
 ```
-Get-SvcSddl
-This function, gets access control entries on a service for a specified sid in SDDL form.
+Get-SvcAce
+This function, gets access control entries on a service for a specified sid.
 ```
 
 ```
@@ -29,12 +29,15 @@ Follow sections explains a bit about installation of the module and how to use i
 This section will be updated at a later time..
 
 ## How to install
-Download the repo, and import the module using the "Import-Module" cmdlet.
+This module has been uploaded to Powershell Gallery and can be installed using the following command
 ```
-Import-Module .\build\SvcAce.psd1 -Force
+Install-Module SvcAce
 ```
 
 ## How to use
+The module can be used locally or remotely using WS-MAN. Both require that you enter a machine name.
+The access mask can be entered, either in HEX or decimal, but must be supported in order to create a working access control entry.
+For further information, review the documentation from Microsoft here: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/f4296d69-1c0f-491f-9587-a960b292d070 and always remember to test new access masks, before rolling it out into production.
 
 **Syntax**
 ```
@@ -43,7 +46,7 @@ New-SvcAce -ComputerName <String> -ServiceName <String> -sid <String> -accessMas
 
 **Example for New-SvcAce**
 ```
-New-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits' -sid 'S-1-5-21-682003330-2146849767-505966439-17195' -accessMask 0x2009D
+New-SvcAce -ComputerName 'server1' -ServiceName 'service1' -sid 'S-1-5-18' -accessMask 0x2009D
 
 
 [SC] SetServiceObjectSecurity SUCCESS
@@ -51,7 +54,7 @@ New-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits' -sid 'S-1-5-21-682
 
 **Example for Get-SvcAce**
 ```
-Get-SvcAce -ComputerName 'gc-test-stjens' -ServiceName 'bits' -sid 'S-1-5-21-682003330-2146849767-505966439-17195'
+Get-SvcAce -ComputerName 'server1' -ServiceName 'service1' -sid 'S-1-5-18'
 
 
 BinaryLength       : 36
