@@ -65,7 +65,7 @@ AceQualifier       : AccessAllowed
 IsCallback         : False
 OpaqueLength       : 0
 AccessMask         : 131229
-SecurityIdentifier : S-1-5-21-682003330-2146849767-505966439-17195
+SecurityIdentifier : S-1-5-18
 AceType            : AccessAllowed
 AceFlags           : None
 IsInherited        : False
@@ -73,5 +73,6 @@ InheritanceFlags   : None
 PropagationFlags   : None
 AuditFlags         : None
 ```
-<br>
+*The Get-SvcAce shows you the ace(s) set on a windows service for a specific sid.*<br>
+*This can be used to retrieve the accessmask, to then remove it if neccesary, or copy the value to add a new ace for another sid on the same or a different service.*
 
