@@ -25,8 +25,7 @@ This function, removes a access control entry on a service that contains the ent
 ```
 
 # Getting Started
-Follow sections explains a bit about installation of the module and how to use it.<br>
-This section will be updated at a later time..
+How to install and use the module<br>
 
 ## How to install
 This module has been uploaded to Powershell Gallery and can be installed using the following command
@@ -41,7 +40,10 @@ For further information, review the documentation from Microsoft here: [[MS-DTYP
 
 ### Syntax
 ```powershell
-New-SvcAce -ComputerName <String> -ServiceName <String> -sid <String> -accessMask <Int>
+Get-SvcSddl     -ComputerName <String> -ServiceName <String>
+Get-SvcAce      -ComputerName <String> -ServiceName <String> -sid <String>
+New-SvcAce      -ComputerName <String> -ServiceName <String> -sid <String> -accessMask <Int>
+Remove-SvcAce   -ComputerName <String> -ServiceName <String> -sid <String> -accessMask <Int>
 ```
 
 ### Examples
