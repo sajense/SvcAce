@@ -1,11 +1,10 @@
 function Get-SvcSddl {
-
     <#
     .SYNOPSIS
         Gets the access control list of a service in SDDL form.
     
     .DESCRIPTION
-        Get-SvcSddl is a function that gets the access control list SDDL form for a specific service on the machine targeted.
+        Get-SvcSddl is a function that gets the access control list SDDL form for a specific service on a local or remote machine.
 
     .PARAMETER ComputerName
         Specifies the name of the machine to execute this script on.
@@ -80,7 +79,7 @@ function Get-SvcSddl {
         Throw "Script is not running as Administrator. Stopping script, no changes were made .."
     }  
 
-    ### Getting SDDL and checking if sid has an Ace on scm as a friendly reminder
+    ### Getting SDDL
     switch ($ComputerName) {
         {@($_ -ne $ENV:COMPUTERNAME)} {
                 $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $_ -ErrorAction Stop
@@ -93,23 +92,21 @@ function Get-SvcSddl {
     $sddl | Out-String | ConvertFrom-String -PropertyNames SDDL | Format-Table -Wrap
 }
 function Get-SvcAce {
-
     <#
     .SYNOPSIS
         Get all access control entries for a service that contains the entered sid.
     
     .DESCRIPTION
-        Get-SvcAce is a function that gets the access control entry for the entered service, that contains the entered sid.
+        Get-SvcAce is a function that gets the access control entry for a service which contains the entered sid.
 
     .PARAMETER ComputerName
         Specifies the name of the machine to execute this script on.
     
     .PARAMETER ServiceName
-        Specifies the shortname of the service that will be configured with a new Ace for
-        the sid and accessmask.
+        Specifies the shortname of the service.
 
     .PARAMETER sid
-        Specifies the SID of an identity, eg. user or group that has an Ace on the service.
+        Specifies the SID of an identity, eg. user or group.
     
     .EXAMPLE
         Get-SvcAce -ComputerName 'server1' -ServiceName 'service1' -sid 'S-1-5-18'
@@ -181,7 +178,7 @@ function Get-SvcAce {
             )
             if ($SidTokens -contains $_) {
                 $false
-                throw "$_ is a sid-token. An abbreviated form of a well-known SID, and not allowed to be modified using this script .."
+                throw "$_ is a sid-token. An abbreviated form of a well-known SID, and should not be modified."
             }
             else {
                 $true
@@ -201,7 +198,7 @@ function Get-SvcAce {
     ### Creating security identifier for sid
     $sid = New-Object System.Security.Principal.SecurityIdentifier($sid)
 
-    ### Getting SDDL and checking if sid has an Ace on scm as a friendly reminder
+    ### Getting SDDL
     switch ($ComputerName) {
         {@($_ -ne $ENV:COMPUTERNAME)} {
                 $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $_ -ErrorAction Stop
@@ -232,13 +229,13 @@ function New-SvcAce {
     
     .DESCRIPTION
         New-SvcAce is a function that modifies the security descriptor on a defined service,
-        by adding an Ace that grants a group or user (sid), access as specified.
+        by adding an Ace that grants a SID, eg. group or user, access as specified.
 
     .PARAMETER ComputerName
         Specifies the name of the machine to execute this script on.
     
     .PARAMETER ServiceName
-        Specifies the shortname of the service that will be configured with a new Ace for
+        Specifies the shortname of the service that will be configured with a new Ace with
         the sid and accessmask.
 
     .PARAMETER sid
@@ -247,7 +244,7 @@ function New-SvcAce {
     .PARAMETER accessMask
         Specifies the access mask in HEX that translates into the permissions that is granted in the ACE.
         If no value is supplied, the default accessMask will be "0x2009D" which is HEX for the permissions "CCLCSWRPLORC",
-        which is needed to poll services for monitoring data.
+        which is the basic read rights to poll services for data to be used for monitoring.
         If scmanager is defined as ServiceName, the accessmask will be corrected to "0x2001D" as that is what is supported for scmanager.
         See more information for permissions: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/f4296d69-1c0f-491f-9587-a960b292d070
 
@@ -324,7 +321,7 @@ function New-SvcAce {
             )
             if ($SidTokens -contains $_) {
                 $false
-                throw "$_ is a sid-token. An abbreviated form of a well-known SID, and not allowed to be modified using this script .."
+                throw "$_ is a sid-token. An abbreviated form of a well-known SID, and should not be modified."
             }
             else {
                 $true
@@ -422,13 +419,13 @@ function Remove-SvcAce {
     
     .DESCRIPTION
         Remove-AccessControlEntry is a function that modifies the security descriptor string
-        on a defined service, by removing an Ace for a group or user, that has access.
+        on a defined service, by removing an Ace for a SID, eg. group or user, that has access.
 
     .PARAMETER ComputerName
         Specifies the name of the remote server to execute this script on.
     
     .PARAMETER ServiceName
-        Specifies the shortname of the service that a ACE will be removed from.
+        Specifies the shortname of the service that an Ace will be removed from.
 
     .PARAMETER sid
         Specifies the SID of an identity, eg. user or group that the access is granted for.
@@ -513,7 +510,7 @@ function Remove-SvcAce {
             )
             if ($SidTokens -contains $_) {
                 $false
-                throw "$_ is a sid-token. An abbreviated form of a well-known SID, and not allowed to be modified using this script .."
+                throw "$_ is a sid-token. An abbreviated form of a well-known SID, and should not be modified."
             }
             else {
                 $true
@@ -539,7 +536,7 @@ function Remove-SvcAce {
     ### Creating security identifier for sid
     $sid = New-Object System.Security.Principal.SecurityIdentifier($sid)
 
-    ### Getting SDDL and checking if sid has an Ace on scm as a friendly reminder
+    ### Getting SDDL
     switch ($ComputerName) {
         {@($_ -ne $ENV:COMPUTERNAME)} {
                 $sddl = Invoke-Command -ScriptBlock {sc.exe sdshow $using:ServiceName | Where-Object {$_}} -ComputerName $_ -ErrorAction Stop
