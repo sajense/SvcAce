@@ -24,7 +24,7 @@ GUID = 'b931cf6b-95ef-4e58-bc98-f930251f2e0b'
 Author = 'Steven Jensen'
 
 # Company or vendor of this module
-CompanyName = ''
+#CompanyName = ''
 
 # Copyright statement for this module
 Copyright = '(c) 2022 Steven Jensen. All rights reserved.'
@@ -101,7 +101,7 @@ PrivateData = @{
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/sajense/SvcAce'
 
         # A URL to an icon representing this module.
         # IconUri = ''
@@ -120,7 +120,7 @@ PrivateData = @{
 
     } # End of PSData hashtable
 
-} # End of PrivateData hashtable
+ } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
 # HelpInfoURI = ''
