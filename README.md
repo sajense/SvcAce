@@ -30,33 +30,34 @@ This section will be updated at a later time..
 
 ## How to install
 This module has been uploaded to Powershell Gallery and can be installed using the following command
-```
+```powershell
 Install-Module SvcAce
 ```
 
 ## How to use
 The module can be used locally or remotely using WS-MAN. Both require that you enter a machine name.
 The access mask can be entered, either in HEX or decimal, but must be supported in order to create a working access control entry.
-For further information, review the documentation from Microsoft here: https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/f4296d69-1c0f-491f-9587-a960b292d070 and always remember to test new access masks, before rolling it out into production.
+For further information, review the documentation from Microsoft here: [[MS-DTYP]: Syntax | Microsoft Docs](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/f4296d69-1c0f-491f-9587-a960b292d070), and always remember to test new access masks, before rolling it out into production.
 
-**Syntax**
-```
+### Syntax
+```powershell
 New-SvcAce -ComputerName <String> -ServiceName <String> -sid <String> -accessMask <Int>
 ```
 
+### Examples
 **Example for New-SvcAce**
-```
+```powershell
 New-SvcAce -ComputerName 'server1' -ServiceName 'service1' -sid 'S-1-5-18' -accessMask 0x2009D
-
-
-[SC] SetServiceObjectSecurity SUCCESS
 ```
 
 **Example for Get-SvcAce**
-```
+```powershell
 Get-SvcAce -ComputerName 'server1' -ServiceName 'service1' -sid 'S-1-5-18'
+```
 
+**Output**
 
+```console
 BinaryLength       : 36
 AceQualifier       : AccessAllowed
 IsCallback         : False
