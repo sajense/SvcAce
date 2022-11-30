@@ -24,7 +24,7 @@ GUID = 'b931cf6b-95ef-4e58-bc98-f930251f2e0b'
 Author = 'Steven Jensen'
 
 # Company or vendor of this module
-#CompanyName = ''
+CompanyName = ''
 
 # Copyright statement for this module
 Copyright = '(c) 2022 Steven Jensen. All rights reserved.'
@@ -95,7 +95,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        # Tags = @()
+        Tags = 'Windows Services','Services','Security','Access Control','Powershell'
 
         # A URL to the license for this module.
         # LicenseUri = ''
