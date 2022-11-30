@@ -46,6 +46,18 @@ New-SvcAce      -ComputerName <String> -ServiceName <String> -sid <String> -acce
 Remove-SvcAce   -ComputerName <String> -ServiceName <String> -sid <String> -accessMask <Int>
 ```
 
+<br>
+
+The *sid* parameter will use an environmental variable named "SvcAceSID" if no value is entered.<br>
+This is done, in case you, like me, get tired of pasting the same sid over and over again.<br>
+To add a user environmental varibale you can use powershell.
+
+```powershell
+[System.Environment]::SetEnvironmentVariable('SvcAceSID','<SID>',[System.EnvironmentVariableTarget]::User)
+```
+
+<br>
+
 ### Examples
 **Example for New-SvcAce**
 ```powershell
