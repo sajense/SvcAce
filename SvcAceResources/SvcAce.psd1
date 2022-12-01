@@ -12,7 +12,7 @@
 RootModule = 'SvcAce.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.0.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -95,7 +95,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Windows Services','Services','Security','Access Control','Powershell'
+        Tags = 'WindowsServices','Services','Security','AccessControl','Powershell'
 
         # A URL to the license for this module.
         # LicenseUri = ''
